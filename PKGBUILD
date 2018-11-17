@@ -8,9 +8,14 @@ license=('MIT')
 options=(zipman)
 depends=('libx11' 'libxinerama' 'libxft' 'freetype2')
 install=dwm.install
-source=($pkgname-$pkgver::git+git://git.suckless.org/dwm#branch=master
-        config.h)
-_patches=(01-uselessgap.diff)
+source=(
+    $pkgname-$pkgver::git+git://git.suckless.org/dwm#branch=master
+    config.h
+)
+_patches=(
+    01-uselessgap.diff
+    02-pango.diff
+)
 source=(${source[@]} ${_patches[@]})
 
 build() {
