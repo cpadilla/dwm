@@ -18,6 +18,7 @@ _patches=(
     03-systray.diff
     04-bottomstack.diff
     05-moveresize.diff
+    06-cfacts.diff
 )
 source=(${source[@]} ${_patches[@]})
 
