@@ -15,9 +15,6 @@ source=(
 _patches=(
     01-uselessgap.diff
     02-systray.diff
-    03-bottomstack.diff
-    04-moveresize.diff
-    05-cfacts.diff
 )
 source=(${source[@]} ${_patches[@]})
 

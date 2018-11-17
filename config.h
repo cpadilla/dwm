@@ -2,7 +2,7 @@
 
 /* appearance */
 static const char *fonts[] = {
-    "Hack:pixelsize=16:antialias=true:autohint=true"
+    "Hack:pixelsize=16:antialias=true:autohint=true",
     "Siji:pixelsize=16:size=16"
 };
 static const char dmenufont[]       = "Hack:pixelsize=16:antialias=true:autohint=true";
@@ -47,13 +47,11 @@ static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "\ue131",     tile },    	    /* first entry is default */
 	{ "\ue135",     NULL },   	    /* no layout function means floating behavior */
-	{ "\ue130",     monocle },      /* monocle is good for maximizing the preservation and focusing of the window */
-	{ "\ue133",     bstack },       /* stacks slave pane to the bottom vertically */
-	{ "\ue132",     bstackhoriz },  /* stacks slave pane to the bottom horizontally */
+	{ "\ue130",     monocle }       /* monocle is good for maximizing the preservation and focusing of the window */
 };
 
 /* key definitions */
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -65,7 +63,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_blackbg, "-nf", col_bluefg, "-sb", col_yellowfg, "-sf", col_black, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]  = { "termite", NULL };
 
 static Key keys[] = {
@@ -80,9 +78,6 @@ static Key keys[] = {
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
-	{ MODKEY|ShiftMask,             XK_h,      setcfact,       {.f = +0.25} },
-	{ MODKEY|ShiftMask,             XK_l,      setcfact,       {.f = -0.25} },
-	{ MODKEY|ShiftMask,             XK_o,      setcfact,       {.f =  0.00} },
 	{ MODKEY,                       XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
