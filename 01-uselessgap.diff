@@ -1,3 +1,13 @@
+--- dwm/config.def.h
++++ dwm/config.def.h
+@@ -13,6 +13,7 @@
+ static const char selbordercolor[]  = "#005577";
+ static const char selbgcolor[]      = "#005577";
+ static const char selfgcolor[]      = "#eeeeee";
++static const unsigned int gappx     = 6;        /* gap pixel between windows */
+ static const unsigned int borderpx  = 1;        /* border pixel of windows */
+ static const unsigned int snap      = 32;       /* snap pixel */
+ static const int showbar            = 1;        /* 0 means no bar */
 --- dwm/dwm.c.orig	2015-11-22 13:26:16.664650238 -0700
 +++ dwm/dwm.c	2015-11-22 13:25:57.407984351 -0700
 @@ -52,8 +52,8 @@

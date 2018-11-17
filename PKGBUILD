@@ -9,7 +9,7 @@ options=(zipman)
 depends=('libx11' 'libxinerama' 'libxft' 'freetype2' 'siji')
 install=dwm.install
 source=(
-    $pkgname-$pkgver::git+git://git.suckless.org/dwm#branch=master
+    $pkgname-$pkgver::git+git://git.suckless.org/dwm#tag=$pkgver
     config.h
 )
 _patches=(
