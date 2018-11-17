@@ -6,7 +6,7 @@ url="http://dwm.suckless.org"
 arch=('i686' 'x86_64')
 license=('MIT')
 options=(zipman)
-depends=('libx11' 'libxinerama' 'libxft' 'freetype2')
+depends=('libx11' 'libxinerama' 'libxft' 'freetype2' 'siji')
 install=dwm.install
 source=(
     $pkgname-$pkgver::git+git://git.suckless.org/dwm#branch=master
@@ -14,11 +14,10 @@ source=(
 )
 _patches=(
     01-uselessgap.diff
-    02-pango.diff
-    03-systray.diff
-    04-bottomstack.diff
-    05-moveresize.diff
-    06-cfacts.diff
+    02-systray.diff
+    03-bottomstack.diff
+    04-moveresize.diff
+    05-cfacts.diff
 )
 source=(${source[@]} ${_patches[@]})
 
@@ -27,7 +26,7 @@ build() {
 
   for p in "${_patches[@]}"; do
     echo "=> $p"
-    echo patch < ../$p || return 1
+    patch < ../$p || return 1
   done
 
   cp $srcdir/config.h config.h
