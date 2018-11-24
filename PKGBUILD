@@ -15,6 +15,8 @@ source=(
 _patches=(
     01-uselessgap.diff
     02-systray.diff
+    03-bottomstack.diff
+    04-deck.diff
 )
 source=(${source[@]} ${_patches[@]})
 
