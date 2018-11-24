@@ -1,26 +1,31 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const char *fonts[] = {
+static const unsigned int borderpx  = 1;        /* border pixel of windows */
+static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int gappx     = 10;       /* gap pixel between windows */
+static const unsigned int systraypinning = 2;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
+static const unsigned int systrayspacing = 2;   /* systray spacing */
+static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
+static const int showsystray        = 1;        /* 0 means no systray */
+static const int showbar            = 1;        /* 0 means no bar */
+static const int topbar             = 1;        /* 0 means bottom bar */
+static const char *fonts[]          = {
     "Hack:pixelsize=16:antialias=true:autohint=true",
     "Siji:pixelsize=16:size=16"
 };
 static const char dmenufont[]       = "Hack:pixelsize=16:antialias=true:autohint=true";
 static const char normbordercolor[] = "#000000";
-static const char normbgcolor[]     = "#000000";
+static const char normbgcolor[]     = "#1d1f21";
 static const char normfgcolor[]     = "#50BEDF";
 static const char selbordercolor[]  = "#FCEF0A";
 static const char selbgcolor[]      = "#50BEDF";
 static const char selfgcolor[]      = "#000000";
-static const unsigned int gappx     = 10;        /* gap pixel between windows */
-static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const unsigned int snap      = 32;       /* snap pixel */
-static const unsigned int systraypinning = 2;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
-static const unsigned int systrayspacing = 4;   /* systray spacing */
-static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, 0: display systray on the last monitor*/
-static const int showsystray        = 1;        /* 0 means no systray */
-static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
+static const char *colors[][3]      = {
+	/*               fg         bg         border   */
+	[SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor },
+	[SchemeSel]  = { selfgcolor, selbgcolor,  selbordercolor  },
+};
 
 /* tagging */
 static const char *tags[] = { "\ue241", "\ue1ee", "\ue1ed", "\ue1ec", "\ue1d9", "\ue04c", "\ue0ad", "\ue0fe", "\ue1e3" };
@@ -38,13 +43,12 @@ static const Rule rules[] = {
 };
 
 /* layout(s) */
-static const float mfact     = 0.5; /* factor of master area size [0.05..0.95] */
-static const int nmaster     = 1;   /* number of clients in master area */
-static const int resizehints = 1;   /* 1 means respect size hints in tiled resizals */
+static const float mfact     = 0.5;  /* factor of master area size [0.05..0.95] */
+static const int nmaster     = 1;    /* number of clients in master area */
+static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-    /* first entry is default */
 	{ "\ue130",     monocle },      /* monocle is good for maximizing the preservation and focusing of the window */
 	{ "\ue131",     tile },    	    /* default tiling behavior */
 	{ "\ue135",     NULL }   	    /* no layout function means floating behavior */
@@ -106,7 +110,7 @@ static Key keys[] = {
 };
 
 /* button definitions */
-/* click can be ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
+/* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
 	/* click                event mask      button          function        argument */
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
