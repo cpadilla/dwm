@@ -18,6 +18,7 @@ _patches=(
     03-bottomstack.diff
     04-deck.diff
     05-attachbottom.diff
+    06-pertag.diff
 )
 source=(${source[@]} ${_patches[@]})
 
