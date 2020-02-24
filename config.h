@@ -34,6 +34,7 @@ static const Rule rules[] = {
 	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "XCalc",    "xcalc",    "Calculator",       0,            1,           -1 },
+	{ "Bitcoin Core","bitcoin-qt","Bitcoin-Qt",   0,            1,            2 },
 };
 
 /* layout(s) */
