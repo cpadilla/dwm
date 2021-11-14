@@ -1,4 +1,6 @@
 *.pkg.tar.xz
+*.pkg.tar.zst
 pkg/
 src/
 dwm-6.1/
+dwm-6.2/

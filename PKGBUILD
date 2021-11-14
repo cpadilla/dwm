@@ -1,5 +1,5 @@
 pkgname=dwm
-pkgver=6.1
+pkgver=6.2
 pkgrel=2
 pkgdesc="A dynamic window manager for X"
 url="http://dwm.suckless.org"
@@ -15,11 +15,15 @@ source=(
 _patches=(
     01-uselessgap.diff
     02-systray.diff
+)
+
+_ignore=(
     03-bottomstack.diff
     04-deck.diff
     05-attachbottom.diff
     06-pertag.diff
 )
+
 source=(${source[@]} ${_patches[@]})
 
 build() {
