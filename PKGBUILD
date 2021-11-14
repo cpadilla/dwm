@@ -16,9 +16,6 @@ _patches=(
     02-systray.diff
     03-bottomstack.diff
     04-deck.diff
-)
-
-_ignore=(
     05-attachbottom.diff
     06-pertag.diff
 )
