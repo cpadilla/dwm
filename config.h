@@ -18,10 +18,10 @@ static const char *fonts[]          = {
 static const char dmenufont[]       = "Hack:pixelsize=16:antialias=true:autohint=true";
 static const char normbordercolor[] = "#000000";
 static const char normbgcolor[]     = "#000000";
-static const char normfgcolor[]     = "#7E0001";
-static const char selbordercolor[]  = "#FF0000";
-static const char selbgcolor[]      = "#000000";
-static const char selfgcolor[]      = "#FF0000";
+static const char normfgcolor[]     = "#EEEEEE";
+static const char selbordercolor[]  = "#FFFFFF";
+static const char selbgcolor[]      = "#004e98";
+static const char selfgcolor[]      = "#FFFFFF";
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor },
