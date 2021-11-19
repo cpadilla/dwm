@@ -19,7 +19,7 @@ static const char dmenufont[]       = "Hack:pixelsize=16:antialias=true:autohint
 static const char normbordercolor[] = "#000000";
 static const char normbgcolor[]     = "#1A1A1A";
 static const char normfgcolor[]     = "#EEEEEE";
-static const char selbordercolor[]  = "#1A1A1A";
+static const char selbordercolor[]  = "#004e98";
 static const char selbgcolor[]      = "#004e98";
 static const char selfgcolor[]      = "#FFFFFF";
 static const char *colors[][3]      = {
