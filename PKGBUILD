@@ -1,14 +1,16 @@
-pkgname=dwm pkgver=6.2
+pkgname=dwm
+pkgver=6.4
 pkgrel=2
 pkgdesc="A dynamic window manager for X"
 url="http://dwm.suckless.org"
 arch=('i686' 'x86_64')
 license=('MIT')
 options=(zipman)
-depends=('libx11' 'libxinerama' 'libxft' 'freetype2' 'siji')
+depends=('libx11' 'libxinerama' 'libxft' 'freetype2')
 install=dwm.install
 source=(
-    $pkgname-$pkgver::git+git://git.suckless.org/dwm#branch=master
+    http://dl.suckless.org/$pkgname/$pkgname-$pkgver.tar.gz
+    # $pkgname-$pkgver::git+git://git.suckless.org/dwm#tag=6.2
     config.h
 )
 _patches=(
@@ -18,6 +20,7 @@ _patches=(
     04-deck.diff
     05-attachbottom.diff
     06-pertag.diff
+    07-statusallmons.diff
 )
 
 source=(${source[@]} ${_patches[@]})
