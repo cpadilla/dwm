@@ -12,10 +12,11 @@ static const int showsystray        = 1;     /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = { 
-    "Hack:pixelsize=18:antialias=true:autohint=true",
+    "Symbols Nerd Font Mono:pixelsize=20:antialias=true",
+    "Hack:pixelsize=20:antialias=true:autohint=true",
     "monospace:size=10"
 };
-static const char dmenufont[]       = "Hack:pixelsize=18:antialias=true:autohint=true";
+static const char dmenufont[]       = "Hack:pixelsize=20:antialias=true:autohint=true";
 static const char normbordercolor[] = "#000000";
 static const char normbgcolor[]     = "#1A1A1A";
 static const char normfgcolor[]     = "#EEEEEE";
@@ -29,7 +30,8 @@ static const char *colors[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+// static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "\uf356", "\ue68f", "\uf489", "\uf1c0", "\uf118", "\uf1b6", "\uf11b", "\uf1bc", "\uf249" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -39,7 +41,7 @@ static const Rule rules[] = {
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
 	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
-	{ "Spotify",  NULL,       NULL,       1 << 2,       0,            1 },
+	{ "Spotify",  NULL,       NULL,       1 << 7,       0,            1 },
 	{ "Bitcoin-Qt",  NULL,    NULL,       1 << 8,       1,            1 },
 	{ "vesktop",  NULL,       NULL,       1 << 5,       0,            1 },
 	{ "discord",  NULL,       NULL,       1 << 5,       0,            1 },
@@ -52,14 +54,24 @@ static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 
+// static const Layout layouts[] = {
+// 	/* symbol     arrange function */
+// 	{ "[]=",      tile },    /* first entry is default */
+// 	{ "><>",      NULL },    /* no layout function means floating behavior */
+// 	{ "[M]",      monocle },
+// 	{ "TTT",      bstack },
+// 	{ "===",      bstackhoriz },
+// 	{ "[D]",      deck },
+// };
+
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "[]=",      tile },    /* first entry is default */
-	{ "><>",      NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
-	{ "TTT",      bstack },
-	{ "===",      bstackhoriz },
-	{ "[D]",      deck },
+	{ "\uf1b2",      tile },    /* first entry is default */
+	{ "\uedf7",      NULL },    /* no layout function means floating behavior */
+	{ "\uf2d0",      monocle },
+	{ "\uef81",      bstack },
+	{ "\uf51e",      bstackhoriz },
+	{ "\ueb56",      deck },
 };
 
 /* key definitions */
