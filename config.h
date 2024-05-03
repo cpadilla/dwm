@@ -12,10 +12,10 @@ static const int showsystray        = 1;     /* 0 means no systray */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = { 
-    "Hack:pixelsize=16:antialias=true:autohint=true",
+    "Hack:pixelsize=18:antialias=true:autohint=true",
     "monospace:size=10"
 };
-static const char dmenufont[]       = "Hack:pixelsize=16:antialias=true:autohint=true";
+static const char dmenufont[]       = "Hack:pixelsize=18:antialias=true:autohint=true";
 static const char normbordercolor[] = "#000000";
 static const char normbgcolor[]     = "#1A1A1A";
 static const char normfgcolor[]     = "#EEEEEE";
@@ -39,6 +39,11 @@ static const Rule rules[] = {
 	/* class      instance    title       tags mask     isfloating   monitor */
 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
 	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+	{ "Spotify",  NULL,       NULL,       1 << 2,       0,            1 },
+	{ "Bitcoin-Qt",  NULL,    NULL,       1 << 8,       1,            1 },
+	{ "vesktop",  NULL,       NULL,       1 << 5,       0,            1 },
+	{ "discord",  NULL,       NULL,       1 << 5,       0,            1 },
+	{ "steam",  NULL,         NULL,       1 << 5,       0,            0 },
 };
 
 /* layout(s) */
