@@ -33,6 +33,19 @@ static const char *colors[][3]      = {
 // static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 static const char *tags[] = { "\uf356", "\ue68f", "\uf489", "\uf1c0", "\uf118", "\uf1b6", "\uf11b", "\uf1bc", "\uf249" };
 
+
+static const char *tagsel[][2] = {
+	{ "#004e98", "#1A1A1A" },
+	{ "#ff7f00", "#1A1A1A" },
+	{ "#00ff00", "#1A1A1A" },
+	{ "#ff0000", "#1A1A1A" },
+	{ "#ffff00", "#1A1A1A" },
+	{ "#00ffff", "#1A1A1A" },
+	{ "#9400d3", "#1A1A1A" },
+	{ "#1ED760", "#1A1A1A" },
+	{ "#ffff00", "#1A1A1A" },
+};
+
 static const Rule rules[] = {
 	/* xprop(1):
 	 *	WM_CLASS(STRING) = instance, class
@@ -90,12 +103,14 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]  = { "cool-retro-term", NULL };
 static const char *browsercmd[]  = { "chromium", NULL };
+static const char *filecmd[]  = { "nautilus", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_f,      spawn,          {.v = browsercmd } },
+	{ MODKEY,                       XK_x,      spawn,          {.v = filecmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },

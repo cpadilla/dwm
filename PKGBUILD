@@ -21,6 +21,7 @@ _patches=(
     05-attachbottom.diff
     06-pertag.diff
     07-statusallmons.diff
+    08-rainbowtags.diff
 )
 
 source=(${source[@]} ${_patches[@]})
