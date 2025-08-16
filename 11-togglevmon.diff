@@ -1,0 +1,217 @@
+--- dwm.c.orig	2025-08-15 19:48:13.651276320 -0400
++++ dwm.c	2025-08-15 19:47:18.376527120 -0400
+@@ -116,6 +116,7 @@
+ 	int bw, oldbw;
+ 	unsigned int tags;
+ 	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
++    int lastmon;
+ 	Client *next;
+ 	Client *snext;
+ 	Monitor *mon;
+@@ -253,6 +254,7 @@
+ static void togglefloating(const Arg *arg);
+ static void toggletag(const Arg *arg);
+ static void toggleview(const Arg *arg);
++static void togglevmon(const Arg *arg);
+ static void unfocus(Client *c, int setfocus);
+ static void unmanage(Client *c, int destroyed);
+ static void unmapnotify(XEvent *e);
+@@ -285,6 +287,7 @@
+ static const char broken[] = "broken";
+ static char stext[256];
+ static int screen;
++static int vmon_forced = 1;  /* start with virtual split enabled */
+ static int sw, sh;           /* X display screen geometry width, height */
+ static int bh;               /* bar height */
+ static int lrpad;            /* sum of left and right padding for text */
+@@ -912,9 +915,13 @@
+ 				urg & 1 << i);
+ 		x += w;
+ 	}
+-	w = TEXTW(m->ltsymbol);
+-	drw_setscheme(drw, scheme[SchemeNorm]);
+-	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
++    /* show layout + VMON state marker (symbols from config.h) */
++    const char *msym = vmon_forced ? vmon_on_sym : vmon_off_sym;
++    char lbuf[64];
++    snprintf(lbuf, sizeof lbuf, "%s %s", m->lt[m->sellt]->symbol, msym);
++    w = TEXTW(lbuf);
++    drw_setscheme(drw, scheme[SchemeNorm]);
++    x = drw_text(drw, x, 0, w, bh, lrpad / 2, lbuf, 0);
+ 
+ 	if ((w = m->ww - tw - stw - x) > bh) {
+ 		if (m->sel) {
+@@ -1246,6 +1253,7 @@
+ 		c->mon = selmon;
+ 		applyrules(c);
+ 	}
++    c->lastmon = c->mon ? c->mon->num : 0;
+ 
+ 	if (c->x + WIDTH(c) > c->mon->wx + c->mon->ww)
+ 		c->x = c->mon->wx + c->mon->ww - WIDTH(c);
+@@ -1696,6 +1704,7 @@
+ 	detach(c);
+ 	detachstack(c);
+ 	c->mon = m;
++    c->lastmon = m->num;
+ 	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
+ 	attachbottom(c);
+ 	attachstack(c);
+@@ -2100,6 +2109,105 @@
+ 	}
+ }
+ 
++static void
++collapse_to_single(void)
++{
++    Monitor *head = mons;
++    if (!head)
++        return;
++
++    /* Move all clients from every extra monitor to the head monitor */
++    for (Monitor *cur = head->next; cur; cur = cur->next) {
++        while (cur->clients) {
++            Client *c = cur->clients;
++            cur->clients = c->next;
++            detachstack(c);
++            c->mon = head;
++            attachbottom(c);
++            attachstack(c);
++        }
++    }
++
++    /* Free all monitors after head safely */
++    Monitor *cur = head->next;
++    head->next = NULL;
++    while (cur) {
++        Monitor *next = cur->next;
++        if (cur == selmon)
++            selmon = head;
++        cleanupmon(cur);
++        cur = next;
++    }
++
++    /* Resize the remaining head monitor to full screen */
++    head->mx = head->wx = 0;
++    head->my = head->wy = 0;
++    head->mw = head->ww = sw;
++    head->mh = head->wh = sh;
++    updatebarpos(head);
++}
++
++static Monitor *
++monbyindex(int idx)
++{
++    Monitor *m;
++    for (m = mons; m; m = m->next)
++        if (m->num == idx)
++            return m;
++    return NULL;
++}
++
++static void
++restore_clients_to_lastmon(void)
++{
++    if (!mons)
++        return;
++
++    /* Clients that were on other monitors were moved into mons->clients */
++    Client *c = mons->clients;
++    while (c) {
++        Client *next = c->next;            /* save iterator before potentially detaching */
++        Monitor *dest = monbyindex(c->lastmon);
++        if (dest && dest != c->mon) {
++            detach(c);
++            detachstack(c);
++            c->mon = dest;
++            attachbottom(c);
++            attachstack(c);
++        }
++        c = next;
++    }
++}
++
++static void
++togglevmon(const Arg *arg)
++{
++    vmon_forced = !vmon_forced;
++
++    /* Re-evaluate geometry; our FORCE_VMON_SPLIT / RandR gates depend on vmon_forced */
++    if (updategeom()) {
++        drw_resize(drw, sw, bh);
++        updatebars();
++    }
++
++    /* If we just turned VMON ON, put clients back on their previous monitors */
++    if (vmon_forced) {
++        restore_clients_to_lastmon();
++    }
++    /* If we turned VMON OFF, updategeom() should have collapsed already. */
++
++    /* Ensure bars/fullscreen clients sized for the current geometry */
++    for (Monitor *m = mons; m; m = m->next) {
++        for (Client *c = m->clients; c; c = c->next)
++            if (c->isfullscreen)
++                resizeclient(c, m->mx, m->my, m->mw, m->mh);
++        resizebarwin(m);
++    }
++    focus(NULL);
++    arrange(NULL);
++    drawbars();
++}
++
+ void
+ unfocus(Client *c, int setfocus)
+ {
+@@ -2221,7 +2329,7 @@
+ 
+ #if defined(XRANDR_MONITORS) && defined(HAVE_RANDR_MONITORS)
+   /* Prefer RandR 1.5 monitor objects; fall back to Xinerama/default */
+-  {
++  if (vmon_forced) {
+     int rrn = 0, i, n, nn;
+     XRRMonitorInfo *minfo = XRRGetMonitors(dpy, root, True, &rrn);
+     if (minfo && rrn > 0) {
+@@ -2277,7 +2385,7 @@
+ 
+ #ifdef FORCE_VMON_SPLIT
+   /* If only one head at 5120x1440, pretend two 2560x1440 heads. */
+-  if (sw == 5120 && sh == 1440) {
++  if (vmon_forced && sw == 5120 && sh == 1440) {
+     Monitor *m, *r;
+     if (!mons) mons = createmon();
+     m = mons;
+@@ -2365,6 +2473,13 @@
+ 			updatebarpos(mons);
+ 		}
+ 	}
++
++    /* If we’re not forcing the split, ensure only one monitor exists */
++    if (!vmon_forced) {
++        collapse_to_single();
++        dirty = 1;
++    }
++
+ done_geom:
+ 	if (dirty) {
+ 		selmon = mons;
+--- config.def.h.orig	2025-08-15 19:48:34.649189514 -0400
++++ config.def.h	2025-08-15 19:39:57.574968223 -0400
+@@ -23,6 +23,9 @@
+ 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
+ 	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+ };
++/* VMON mode symbols */
++static const char *vmon_on_sym  = " ";    /* split ON */
++static const char *vmon_off_sym = "  ●";  /* 1MON     */
+ 
+ /* tagging */
+ static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+@@ -118,6 +121,7 @@
+ 	TAGKEYS(                        XK_8,                      7)
+ 	TAGKEYS(                        XK_9,                      8)
+ 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
++	{ MODKEY|ShiftMask,             XK_F11,    togglevmon,     {0} },
+ };
+ 
+ /* button definitions */

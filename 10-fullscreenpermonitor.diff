@@ -1,0 +1,82 @@
+--- dwm.c.orig	2025-08-15 02:25:13.157094780 -0400
++++ dwm.c	2025-08-15 02:35:46.726538341 -0400
+@@ -83,7 +83,8 @@
+ enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
+        NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
+        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
+-       NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
++       NetWMWindowTypeDialog, NetClientList,
++       NetWMFullscreenMonitors, NetLast }; /* EWMH atoms */
+ enum { Manager, Xembed, XembedInfo, XLast }; /* Xembed atoms */
+ enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
+ enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
+@@ -237,6 +238,7 @@
+ static void setfocus(Client *c);
+ static void setfullscreen(Client *c, int fullscreen);
+ static void setlayout(const Arg *arg);
++static void setfullscreenmonitorsprop(Client *c, int mindex);
+ static void setmfact(const Arg *arg);
+ static void setup(void);
+ static void seturgent(Client *c, int urg);
+@@ -707,7 +709,17 @@
+ 	XConfigureRequestEvent *ev = &e->xconfigurerequest;
+ 	XWindowChanges wc;
+ 
+-	if ((c = wintoclient(ev->window))) {
++     /* If a client is fullscreen, keep it confined to its monitor */
++    c = wintoclient(ev->window);
++    if (c && c->isfullscreen) {
++        m = c->mon;
++        XMoveResizeWindow(dpy, c->win, m->mx, m->my, m->mw, m->mh);
++        configure(c);
++        XSync(dpy, False);
++        return;
++    }
++
++	if (c) {
+ 		if (ev->value_mask & CWBorderWidth)
+ 			c->bw = ev->border_width;
+ 		else if (c->isfloating || !selmon->lt[selmon->sellt]->arrange) {
+@@ -1736,6 +1748,20 @@
+ 	return exists;
+ }
+ 
++/* Tell EWMH-aware apps which monitor is used for fullscreen.
++ * Property format: CARDINAL[4] = top, bottom, left, right monitor indices.
++ * We set all four to the same index (current monitor). */
++static void
++setfullscreenmonitorsprop(Client *c, int mindex)
++{
++    long mons[4];
++    if (mindex < 0) mindex = 0;
++    mons[0] = mons[1] = mons[2] = mons[3] = mindex;
++    XChangeProperty(dpy, c->win, netatom[NetWMFullscreenMonitors],
++                    XA_CARDINAL, 32, PropModeReplace,
++                    (unsigned char*)mons, 4);
++}
++
+ void
+ setfocus(Client *c)
+ {
+@@ -1759,11 +1785,13 @@
+ 		c->oldbw = c->bw;
+ 		c->bw = 0;
+ 		c->isfloating = 1;
++        setfullscreenmonitorsprop(c, c->mon ? c->mon->num : 0);
+ 		resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
+ 		XRaiseWindow(dpy, c->win);
+ 	} else if (!fullscreen && c->isfullscreen){
+ 		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
+ 			PropModeReplace, (unsigned char*)0, 0);
++        XDeleteProperty(dpy, c->win, netatom[NetWMFullscreenMonitors]);
+ 		c->isfullscreen = 0;
+ 		c->isfloating = c->oldstate;
+ 		c->bw = c->oldbw;
+@@ -1845,6 +1873,7 @@
+ 	netatom[NetWMWindowType] = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE", False);
+ 	netatom[NetWMWindowTypeDialog] = XInternAtom(dpy, "_NET_WM_WINDOW_TYPE_DIALOG", False);
+ 	netatom[NetClientList] = XInternAtom(dpy, "_NET_CLIENT_LIST", False);
++    netatom[NetWMFullscreenMonitors] = XInternAtom(dpy, "_NET_WM_FULLSCREEN_MONITORS", False);
+ 	xatom[Manager] = XInternAtom(dpy, "MANAGER", False);
+ 	xatom[Xembed] = XInternAtom(dpy, "_XEMBED", False);
+ 	xatom[XembedInfo] = XInternAtom(dpy, "_XEMBED_INFO", False);

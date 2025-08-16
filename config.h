@@ -28,6 +28,9 @@ static const char *colors[][3]      = {
 	[SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor },
 	[SchemeSel]  = { selfgcolor, selbgcolor,  selbordercolor  },
 };
+/* VMON mode symbols */
+static const char *vmon_on_sym  = " ";    /* split ON */
+static const char *vmon_off_sym = "  ●";  /* 1MON     */
 
 /* tagging */
 // static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
@@ -59,6 +62,9 @@ static const Rule rules[] = {
 	{ "vesktop",  NULL,       NULL,       1 << 5,       0,            1 },
 	{ "discord",  NULL,       NULL,       1 << 5,       0,            1 },
 	{ "steam",  NULL,         NULL,       1 << 5,       0,            0 },
+	{ "pavucontrol",  NULL,   NULL,       1 << 6,       0,            1 },
+	{ "electron-mail",  NULL, NULL,       1 << 3,       0,            1 },
+	{ "kdeconnect-app",  NULL,NULL,       1 << 8,       1,            1 },
 };
 
 /* layout(s) */
@@ -103,7 +109,14 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]  = { "cool-retro-term", NULL };
 static const char *browsercmd[]  = { "chromium", NULL };
-static const char *filecmd[]  = { "nautilus", NULL };
+static const char *filecmd[]  = { "nautilus", "--new-window", NULL };
+static const char *lockcmd[]  = { "xscreensaver-command", "--lock", NULL };
+static const char *dunsthistorycmd[]  = { "dunstctl", "history-pop", NULL };
+static const char *scrotcmd[] = {
+    "scrot", "-a", "0,0,2560,1440",
+    "/home/chris/Pictures/screenshots/%Y-%m-%d_%H-%M-%S.png",
+    NULL
+};
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -111,6 +124,8 @@ static Key keys[] = {
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_f,      spawn,          {.v = browsercmd } },
 	{ MODKEY,                       XK_x,      spawn,          {.v = filecmd } },
+	{ MODKEY,                       XK_y,      spawn,          {.v = lockcmd } },
+	{ MODKEY,                       XK_e,      spawn,          {.v = dunsthistorycmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
@@ -145,6 +160,9 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
+	{ MODKEY|ControlMask|ShiftMask, XK_q,      spawn,          SHCMD("pkill -u chris Xorg") },
+    { 0,                            XK_Print,  spawn,          {.v = scrotcmd } },
+    { MODKEY|ShiftMask,             XK_F11,    togglevmon,     {0} },
 };
 
 /* button definitions */

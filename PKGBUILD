@@ -6,7 +6,7 @@ url="http://dwm.suckless.org"
 arch=('i686' 'x86_64')
 license=('MIT')
 options=(zipman)
-depends=('libx11' 'libxinerama' 'libxft' 'freetype2')
+depends=('libx11' 'libxinerama' 'libxft' 'freetype2' 'libxrandr')
 install=dwm.install
 source=(
     http://dl.suckless.org/$pkgname/$pkgname-$pkgver.tar.gz
@@ -22,6 +22,9 @@ _patches=(
     06-pertag.diff
     07-statusallmons.diff
     08-rainbowtags.diff
+    09-xrandrmonitors.diff
+    10-fullscreenpermonitor.diff
+    11-togglevmon.diff
 )
 
 source=(${source[@]} ${_patches[@]})
@@ -31,17 +34,27 @@ build() {
 
   for p in "${_patches[@]}"; do
     echo "=> $p"
-    patch < ../$p || return 1
+    # normalize line endings just in case
+    sed -i 's/\r$//' "../$p"
+  
+    if patch --dry-run -Np1 -i "../$p" >/dev/null 2>&1; then
+      patch -Np1 --follow-symlinks -i "../$p" || return 1
+    elif patch --dry-run -Np0 -i "../$p" >/dev/null 2>&1; then
+      patch -Np0 --follow-symlinks -i "../$p" || return 1
+    else
+      echo "Failed to apply $p with -p1 or -p0"
+      return 1
+    fi
   done
 
   cp $srcdir/config.h config.h
 
-  sed -i 's/CPPFLAGS =/CPPFLAGS +=/g' config.mk
-  sed -i 's/^CFLAGS = -g/#CFLAGS += -g/g' config.mk
-  sed -i 's/^#CFLAGS = -std/CFLAGS += -std/g' config.mk
-  sed -i 's/^LDFLAGS = -g/#LDFLAGS += -g/g' config.mk
-  sed -i 's/^#LDFLAGS = -s/LDFLAGS += -s/g' config.mk
-  make X11INC=/usr/include/X11 X11LIB=/usr/lib/X11 FREETYPEINC=/usr/include/freetype2
+  make X11INC=/usr/include/X11 \
+       X11LIB=/usr/lib/X11 \
+       FREETYPEINC=/usr/include/freetype2 \
+       XINERAMAFLAGS='-DXINERAMA' \
+       XINERAMALIBS='-lXinerama' \
+       VERSION="${pkgver}"
 }
 
 package() {

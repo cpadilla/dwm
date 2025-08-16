@@ -1,0 +1,121 @@
+--- dwm.c.orig	2025-08-14 21:06:39.310285818 -0400
++++ dwm.c	2025-08-14 21:10:38.231320274 -0400
+@@ -36,6 +36,13 @@
+ #include <X11/Xlib.h>
+ #include <X11/Xproto.h>
+ #include <X11/Xutil.h>
++#ifdef XRANDR_MONITORS
++#include <X11/extensions/Xrandr.h>
++/* Build only if the headers actually have the RandR 1.5 monitor API */
++#if defined(RANDR_MAJOR) && (RANDR_MAJOR > 1 || (RANDR_MAJOR == 1 && RANDR_MINOR >= 5))
++#define HAVE_RANDR_MONITORS 1
++#endif
++#endif
+ #ifdef XINERAMA
+ #include <X11/extensions/Xinerama.h>
+ #endif /* XINERAMA */
+@@ -2183,6 +2186,86 @@
+ {
+ 	int dirty = 0;
+ 
++#if defined(XRANDR_MONITORS) && defined(HAVE_RANDR_MONITORS)
++  /* Prefer RandR 1.5 monitor objects; fall back to Xinerama/default */
++  {
++    int rrn = 0, i, n, nn;
++    XRRMonitorInfo *minfo = XRRGetMonitors(dpy, root, True, &rrn);
++    if (minfo && rrn > 0) {
++      Client *c; Monitor *m;
++
++      /* how many monitors we currently have */
++      for (n = 0, m = mons; m; m = m->next, n++);
++
++      nn = rrn;
++
++      /* add missing monitors */
++      for (i = n; i < nn; i++) {
++        for (m = mons; m && m->next; m = m->next);
++        if (m) m->next = createmon(); else mons = createmon();
++      }
++
++      /* update existing monitors to RandR geometry */
++      for (i = 0, m = mons; i < nn && m; m = m->next, i++) {
++        if (i >= n
++        || minfo[i].x      != m->mx || minfo[i].y      != m->my
++        || minfo[i].width  != m->mw || minfo[i].height != m->mh) {
++          dirty = 1;
++          m->num = i;
++          m->mx = m->wx = minfo[i].x;
++          m->my = m->wy = minfo[i].y;
++          m->mw = m->ww = minfo[i].width;
++          m->mh = m->wh = minfo[i].height;
++          updatebarpos(m);
++        }
++      }
++
++      /* remove extra monitors if we had more before */
++      for (i = nn; i < n; i++) {
++        for (m = mons; m && m->next; m = m->next);
++        while (m && (c = m->clients)) {
++          dirty = 1;
++          m->clients = c->next;
++          detachstack(c);
++          c->mon = mons;
++          attachbottom(c);
++          attachstack(c);
++        }
++        if (m == selmon) selmon = mons;
++        if (m) cleanupmon(m);
++      }
++
++      XRRFreeMonitors(minfo);
++      goto done_geom;
++    }
++    if (minfo) XRRFreeMonitors(minfo);
++  }
++#endif
++
++#ifdef FORCE_VMON_SPLIT
++  /* If only one head at 5120x1440, pretend two 2560x1440 heads. */
++  if (sw == 5120 && sh == 1440) {
++    Monitor *m, *r;
++    if (!mons) mons = createmon();
++    m = mons;
++    /* left */
++    m->num = 0;
++    m->mx = m->wx = 0; m->my = m->wy = 0;
++    m->mw = m->ww = 2560; m->mh = m->wh = 1440;
++    updatebarpos(m);
++    /* right */
++    if (!m->next) m->next = createmon();
++    r = m->next;
++    r->num = 1;
++    r->mx = r->wx = 2560; r->my = r->wy = 0;
++    r->mw = r->ww = 2560; r->mh = r->wh = 1440;
++    updatebarpos(r);
++    dirty = 1;
++    selmon = mons; selmon = wintomon(root);
++    goto done_geom;
++  }
++#endif
++
+ #ifdef XINERAMA
+ 	if (XineramaIsActive(dpy)) {
+ 		int i, j, n, nn;
+@@ -2249,6 +2332,7 @@
+ 			updatebarpos(mons);
+ 		}
+ 	}
++done_geom:
+ 	if (dirty) {
+ 		selmon = mons;
+ 		selmon = wintomon(root);
+--- config.mk.orig	2025-08-14 21:06:54.797353120 -0400
++++ config.mk	2025-08-14 21:12:17.267747113 -0400
+@@ -37,3 +37,7 @@
+ 
+ # compiler and linker
+ CC = cc
++
++CPPFLAGS += -DXRANDR_MONITORS
++LIBS     += -lXrandr
++CPPFLAGS += -DFORCE_VMON_SPLIT
